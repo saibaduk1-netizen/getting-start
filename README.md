@@ -37,6 +37,11 @@ status
 
 ---
 ## 5. Version History
+### v0.3
+- Added move command with angle parameter
+- Expanded robot state with angle value
+- Added input validation for move command
+
 ### v0.2 (Current)
 - JSON-based command protocol implemented
 - TCP client-server communication established
@@ -52,6 +57,7 @@ This project uses a simple versioning scheme:
 - v0.x : Feature-based development stage
 
 ---
+
 ## 6. Future Plan
 - Add robot joint control (move command)
 - Extend command structure (position, angle)
