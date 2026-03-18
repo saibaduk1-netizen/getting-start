@@ -20,6 +20,39 @@ Client (CLI)
 - Robot State: maintains current state (OPEN/CLOSED, angle)
 
 ---
+### 2.1 System Overview
+```mermaid
+flowchart LR
+    Client --> Server
+    Server --> StateMachine
+    StateMachine --> RobotState
+```
+
+### 2.2 Command Processing Flow
+```mermaid
+flowchart TD
+    Receive --> ParseJSON
+    ParseJSON --> Validate
+    Validate --> Execute
+    Execute --> Response
+```
+
+### 2.3 State Machine Design
+```mermaid
+flowchart TD
+Start --> CheckCmd
+CheckCmd -->|open| Open
+CheckCmd -->|close| Close
+CheckCmd -->|move| Move
+CheckCmd -->|status| Status
+CheckCmd -->|else| Error
+
+Move --> ModeCheck
+ModeCheck -->|absolute| MoveAbs
+ModeCheck -->|relative| MoveRel
+```
+
+---
 ## 3. Command Protocol
 - Basic Commands
 {"cmd": "open"}
@@ -61,8 +94,8 @@ status
 ### v0.4 (2026-03-18)
 - extended move command (absolute / relative)
 - improved command protocol design
+- response format consistency
 
-response format consistency
 ### v0.3
 - Added move command with angle parameter
 - Expanded robot state with angle value
