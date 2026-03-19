@@ -97,6 +97,7 @@ ModeCheck -->|relative| MoveRel
 absolute: move to target angle
 relative: move from current angle
 
+---
 ## 4. Features
 TCP client-server communication
 JSON-based command protocol
@@ -110,7 +111,8 @@ NEW (v0.5)
 - Decoupled communication and execution layers
 - Pytest-based verification for core state machine logic
 
-## 4. How to Run
+---
+## 5. How to Run
 ### 1. Server
 cd ~/getting_start
 python3 src/robot/server.py
@@ -119,14 +121,13 @@ python3 src/robot/server.py
 cd ~/getting_start
 python3 src/robot/client.py
 
----
 ### 3. Example
 move absolute 30
 move relative 10
 status
 
 ---
-## 5. Version History
+## 6. Version History
 ### v0.5 (2026-03-18 23:20)
 - Introduced queue-based asynchronous processing
 - Implemented worker thread (producer-consumer model)
@@ -159,7 +160,7 @@ This project uses a simple versioning scheme:
 
 ---
 
-## 6. Future Plan
+## 7. Future Plan
 - Result feedback mechanism (Polling / Response handling)
 - Multi-worker scaling
 - Command execution tracking
