@@ -16,11 +16,7 @@ not just socket programming.
 
 ---
 ## 2. System Architecture
-Client (CLI)
-→ TCP Socket
-→ Server
-→ State Machine
-→ Robot State
+Client → TCP → Server → Queue → Worker → CommandService → StateMachine → RobotState
 
 - Client: sends commands in JSON format
 - Server: handles TCP communication
@@ -46,7 +42,6 @@ This structure is similar to:
 - Robot control pipeline
 - Distributed command processing systems
 
----
 ### 2.1 System Overview
 ```mermaid
 flowchart LR
@@ -85,31 +80,40 @@ ModeCheck -->|relative| MoveRel
 ---
 ## 3. Command Protocol
 - Basic Commands
-{"cmd": "open"}
-{"cmd": "close"}
-{"cmd": "status"}
+{"command": "open"}
+{"command": "close"}
+{"command": "status"}
 
-- Move Command (v0.4)
-{"cmd": "move", "mode": "absolute", "angle": 30}
-{"cmd": "move", "mode": "relative", "delta": 10}
+{"command": "move", "mode": "absolute", "angle": 30}
+{"command": "move", "mode": "relative", "delta": 10}
 
 - Description
 absolute: move to target angle
 relative: move from current angle
 
+
+
 ---
 ## 4. Features
-TCP client-server communication
-JSON-based command protocol
-State machine-based command handling
-Input validation (type / range)
-Extended command interface (absolute / relative move)
+- TCP client-server communication
+- JSON-based command protocol
+- State machine-based command handling
+- Input validation (type / range)
+- Extended command interface (absolute / relative move)
 
-NEW (v0.5)
+### v0.5
 - Asynchronous command processing (Queue-based)
 - Worker thread for command execution
 - Decoupled communication and execution layers
 - Pytest-based verification for core state machine logic
+
+### NEW (v0.6)
+- Application entry points separated (`run_server.py`, `run_client.py`)
+- Improved TCP server/client structure
+- Unified command schema to `{"command": "..."}`
+- Refined service-to-state-machine interaction
+- Full test coverage across application, interface, service, domain layers
+- All tests passing (system stability ensured)
 
 ---
 ## 5. How to Run
@@ -128,6 +132,14 @@ status
 
 ---
 ## 6. Version History
+### v0.6 (2026-03-20 23:30)
+- Refactored application layer structure
+- Introduced `run_server.py` and `run_client.py` as entry points
+- Unified command schema from `cmd` → `command`
+- Stabilized service and state machine interaction
+- Added comprehensive pytest coverage across all layers
+- Achieved full test pass (system-level validation)
+
 ### v0.5 (2026-03-18 23:20)
 - Introduced queue-based asynchronous processing
 - Implemented worker thread (producer-consumer model)
