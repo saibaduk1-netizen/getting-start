@@ -1,5 +1,5 @@
 import pytest # pytest 라이브러리 임포트
-from state_machine import RobotState # 로봇 상태 머신 클래스 임포트
+from robot.getting_start._state_machine import RobotState # 로봇 상태 머신 클래스 임포트
 
 @pytest.fixture # pytest에서 테스트 함수에 사용할 수 있는 고정된 상태를 제공하는 fixture 정의
 def robot(): # 테스트 함수에서 사용할 RobotState 인스턴스를 생성하여 반환하는 fixture

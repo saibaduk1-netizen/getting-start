@@ -3,7 +3,7 @@ import json
 import threading     # Phyton에서 네트워크 통신 기능 사용 
 
 from queue import Queue    # 파이썬에서 큐 자료구조 사용
-from state_machine import RobotState    # 로봇 상태 머신 클래스 임포트
+from robot.getting_start._state_machine import RobotState    # 로봇 상태 머신 클래스 임포트
 
 HOST = "127.0.0.1"   # 서버 IP 주소 (로컬호스트)
 PORT = 5000         # 서버와 동일한 포트 번호 사용
