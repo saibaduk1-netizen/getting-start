@@ -1,144 +1,144 @@
-# Robot Control System (Learning Project)
+# Robot Control System
 
 ## 1. Overview
-This project implements a TCP-based robot control system using a state machine and JSON protocol.
+A scalable robot control system implementing asynchronous command processing using a queue-worker architecture over TCP.
 
-The goal is to design a **scalable robot command interface**, not just simple socket communication.
-### Why this project?
-This project is designed to simulate a real embedded control system:
-
-- Communication layer (TCP)
-- Command abstraction (JSON protocol)
-- Execution layer (State machine)
-
-The goal is to demonstrate system-level design capability,
-not just socket programming.
+The goal of this project is to design a robust execution architecture for robot control systems, not just socket-based communication.
 
 ---
-## 2. System Architecture
+## 2. Why this problem matters
+In real-world robot and embedded systems:
+- Command execution is often slower than communication
+- Commands may arrive in bursts
+- Blocking execution in the communication layer can cause system-wide degradation
+
+This leads to:
+- Blocking I/O
+- Reduced responsiveness
+- System instability under load
+- Difficulty scaling the system
+
+---
+## 3. Design Goal
+This project aims to:
+
+- Decouple communication and execution
+- Enable non-blocking command handling
+- Provide a scalable command processing structure
+- Simulate real-world robot control execution pipelines
+
+---
+## 4. System Architecture
 Client → TCP → Server → Queue → Worker → CommandService → StateMachine → RobotState
 
-- Client: sends commands in JSON format
-- Server: handles TCP communication
-- State Machine: processes commands
-- Robot State: maintains current state (OPEN/CLOSED, angle)
-
-### Real-world relevance
-- Similar to robot command interface design
-- Applicable to MCU ↔ PC communication systems
-- Can be extended to RTOS-based task/queue architecture
-
-### Async Processing Model (v0.5)
-This system adopts a producer-consumer architecture:
-- Server acts as a producer (receives commands)
-- Queue buffers incoming commands
-- Worker thread consumes and processes commands
-
-This decouples communication from execution,
-improving scalability and system stability.
-
-This structure is similar to:
-- RTOS task queue model
-- Robot control pipeline
-- Distributed command processing systems
-
-### 2.1 System Overview
-```mermaid
-flowchart LR
-    Client --> Server
-    Server --> Queue
-    Queue --> Worker
-    Worker --> StateMachine
-    StateMachine --> RobotState
-```
-
-### 2.2 Command Processing Flow
-```mermaid
-flowchart TD
-    Receive --> ParseJSON
-    ParseJSON --> Enqueue
-    Enqueue --> ImmediateResponse
-    ImmediateResponse --> WorkerProcess
-    WorkerProcess --> Execute
-```
-
-### 2.3 State Machine Design
-```mermaid
-flowchart TD
-Start --> CheckCmd
-CheckCmd -->|open| Open
-CheckCmd -->|close| Close
-CheckCmd -->|move| Move
-CheckCmd -->|status| Status
-CheckCmd -->|else| Error
-
-Move --> ModeCheck
-ModeCheck -->|absolute| MoveAbs
-ModeCheck -->|relative| MoveRel
-```
+### Layered Structure
+- Interface Layer: TCP communication (Server/Client)
+- Buffer Layer: CommandQueue (decoupling)
+- Execution Layer: Worker + CommandService
+- Decision Layer: StateMachine
+- State Layer: RobotState
 
 ---
-## 3. Command Protocol
-- Basic Commands
+## 5. Core Design Principles
+### 1. Separation of Concerns
+Communication, buffering, execution, and decision logic are separated.
+
+### 2. Asynchronous Boundary
+Queue acts as a boundary between I/O and execution.
+
+### 3. Non-blocking I/O
+Server immediately responds after enqueue.
+
+### 4. Scalable Execution Structure
+Worker-based execution allows future extension to multi-worker systems.
+
+---
+## 6. Async Processing Model
+This system follows a producer-consumer architecture:
+
+- TCP Server → Producer
+- CommandQueue → Buffer
+- Worker → Consumer
+
+This structure is commonly used in:
+
+- RTOS message queue systems
+- Robot execution pipelines
+- Distributed processing systems
+
+---
+## 7. Data Flow
+1. TCP Server receives raw bytes
+2. Bytes are parsed into JSON
+3. JSON is validated and converted into command
+4. Command is pushed into queue
+5. Worker consumes command
+6. CommandService processes logic
+7. StateMachine determines state transition
+8. RobotState is updated
+
+---
+## 8. Command Processing Flow
+Receive → Parse → Enqueue → Immediate Response → Worker Execute → State Update
+
+---
+## 9. State Machine Design
+Supported commands:
+
+- open
+- close
+- move (absolute / relative)
+- status
+
+Move command:
+- absolute: move to target angle
+- relative: move from current position
+
+---
+## 10. Command Protocol
 {"command": "open"}
 {"command": "close"}
 {"command": "status"}
-
 {"command": "move", "mode": "absolute", "angle": 30}
 {"command": "move", "mode": "relative", "delta": 10}
 
-- Description
-absolute: move to target angle
-relative: move from current angle
-
-
+---
+## 11. Design Decisions
+### Queue-based Decoupling
+- Prevents blocking in communication layer
+- Absorbs burst traffic
+### Single Worker Model (v0.6)
+- Ensures deterministic execution
+- Simplifies concurrency issues
+### Thread-based Execution (Future work: v0.7~)
+- Lightweight and sufficient for current scale
+- Can be extended to multi-thread or process-based execution
 
 ---
-## 4. Features
+## 12. Features
 - TCP client-server communication
 - JSON-based command protocol
-- State machine-based command handling
+- Queue-based asynchronous processing
+- State machine-based execution
 - Input validation (type / range)
-- Extended command interface (absolute / relative move)
-
-### v0.5
-- Asynchronous command processing (Queue-based)
-- Worker thread for command execution
-- Decoupled communication and execution layers
-- Pytest-based verification for core state machine logic
-
-### NEW (v0.6)
-- Application entry points separated (`run_server.py`, `run_client.py`)
-- Improved TCP server/client structure
-- Unified command schema to `{"command": "..."}`
-- Refined service-to-state-machine interaction
-- Full test coverage across application, interface, service, domain layers
-- All tests passing (system stability ensured)
+- Layered architecture
+- Full pytest coverage
 
 ---
-## 5. How to Run
-### 1. Server
-cd ~/getting_start
-python3 src/robot/server.py
-
-### 2. Client
-cd ~/getting_start
-python3 src/robot/client.py
-
-### 3. Example
-move absolute 30
-move relative 10
-status
+## 13. How to Run
+### Server
+python3 src/robot/run_server.py
+### Client
+python3 src/robot/run_client.py
 
 ---
-## 6. Version History
+## 14. Version History
 ### v0.6 (2026-03-20 23:30)
 - Refactored application layer structure
-- Introduced `run_server.py` and `run_client.py` as entry points
-- Unified command schema from `cmd` → `command`
-- Stabilized service and state machine interaction
-- Added comprehensive pytest coverage across all layers
-- Achieved full test pass (system-level validation)
+- Introduced clear entry points (run_server / run_client)
+- Stabilized service-state interaction
+- Full test coverage across all layers
+- Achieved system-level validation
 
 ### v0.5 (2026-03-18 23:20)
 - Introduced queue-based asynchronous processing
@@ -173,8 +173,21 @@ This project uses a simple versioning scheme:
 ---
 
 ## 7. Future Plan
-- Result feedback mechanism (Polling / Response handling)
-- Multi-worker scaling
-- Command execution tracking
-- Simulation integration
-- ROS2 integration (future)
+### v0.7 (Next Step)
+- Command abstraction refinement
+- Error handling improvements
+- Logging system integration
+
+### v0.8 
+- Command result tracking
+- Async response handling
+- Command ID / status management
+
+### v0.9+
+- Multi-worker execution
+- Priority queue
+- Simulation adapter
+
+### v1.0 Vision
+- Integration with ROS2 execution model
+- Support for real robot hardware interface
